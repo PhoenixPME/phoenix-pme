@@ -62,3 +62,92 @@ The PhoenixPME Auction Escrow is a state machine that manages the lifecycle of a
 - If `buy_it_now_price` is triggered, the contract must validate and lock the full payment before transitioning.
 
 ---
+
+### State: `BIDDING_CLOSED`
+**Purpose:** The bidding period is over. The contract determines the outcome and directs the state machine.
+
+**Parameters & Storage:**
+- `current_highest_bid`: The winning bid amount.
+- `current_winning_bidder`: The address of the winner.
+- `reserve_price`: For final validation.
+
+**Valid Triggers & Next States:**
+1.  `RESERVE_MET` → `AWAITING_WINNER_PAYMENT`
+    - **Condition:** `current_highest_bid` >= `reserve_price`.
+    - **Action:** The winner is bound to lock the payment. All other bids are refunded.
+2.  `RESERVE_NOT_MET` → `CANCELLED_NO_WINNER`
+    - **Condition:** `current_highest_bid` < `reserve_price`.
+    - **Action:** The seller's bond is returned. All bids are refunded. The listing ends.
+
+**On-Chain Logic:**
+- This is primarily a validation and routing state. The actual financial movements (refunds) happen here.
+
+### State: `AWAITING_WINNER_PAYMENT`
+**Purpose:** The winning bidder must convert their winning bid into the **settlement asset** (e.g., XRP) and lock it with the escrow contract. This is the buyer's "skin in the game."
+
+**Parameters & Storage:**
+- `payment_amount`: Equal to `current_highest_bid` (converted to settlement asset value).
+- `payment_asset`: The designated settlement asset (e.g., XRP, a SOLO-wrapped asset).
+- `payment_deadline`: A timer (e.g., 24-48 hours) for the winner to act.
+
+**Mechanics (The Cross-Chain Flow):**
+1.  The Coreum escrow contract holds instructions: "Winner must send `payment_amount` of `payment_asset` to escrow address X."
+2.  The winner obtains the asset (e.g., buys XRP on an exchange, uses Sologenic to convert another token to XRP).
+3.  The winner sends the asset to the designated escrow address **on the XRPL** (or another settlement chain).
+4.  A **bridge oracle** or **IBC relay** confirms the locked payment to the Coreum contract.
+
+**Valid Triggers & Next States:**
+1.  `WINNER_LOCKS_PAYMENT` → `AWAITING_SHIPMENT`
+    - **Condition:** The escrow contract receives verified proof that `payment_amount` is locked in the settlement layer.
+    - **Action:** The seller is notified to proceed with shipment. The buyer's funds are now locked in escrow.
+2.  `PAYMENT_DEADLINE_EXPIRED` → `CANCELLED_WINNER_DEFAULT`
+    - **Condition:** The `payment_deadline` passes without confirmation.
+    - **Action:** The auction is cancelled. The **seller's bond is returned**. The **winning bidder may forfeit their initial bid deposit** (if one was required during bidding) as a penalty for non-payment.
+
+**On-Chain Logic:**
+- This state requires secure **cross-chain verification** (via IBC or a trusted oracle). This is one of the protocol's core technical challenges.
+
+---
+
+### State: `AWAITING_SHIPMENT`
+**Purpose:** The buyer's payment is locked. The seller must now ship the physical item according to the protocol's rules.
+
+**Parameters & Storage:**
+- `shipment_deadline`: A timer (e.g., 3-5 business days) for the seller to provide proof of shipment.
+- `allowed_carrier`: Protocol-enforced. Initially: `"USPS"`.
+- `allowed_destination_region`: Protocol-enforced. Initially: `"US-Lower48"`.
+
+**Valid Triggers & Next States:**
+1.  `SELLER_SUBMITS_SHIPMENT_PROOF` → `IN_TRANSIT`
+    - **Condition:** Seller submits a valid USPS tracking number. An **oracle service** must verify:
+        a. The tracking number is valid and active.
+        b. The destination is within the `allowed_destination_region`.
+    - **Action:** The state moves to `IN_TRANSIT`. The shipping countdown begins.
+2.  `SHIPMENT_DEADLINE_EXPIRED` → `DISPUTE_SELLER_DEFAULT`
+    - **Condition:** `shipment_deadline` passes without verified proof.
+    - **Action:** This is treated as seller failure. The buyer's locked payment is refunded in full. The **seller's bond is forfeited** to the buyer as compensation.
+
+**On-Chain Logic:**
+- Relies on an external **Shipping Oracle** to validate USPS tracking data. This oracle is a critical trust component.
+
+### State: `IN_TRANSIT`
+**Purpose:** The item is en route. The system is waiting for either delivery confirmation or a problem.
+
+**Parameters & Storage:**
+- `tracking_number`: The verified USPS tracking ID.
+- `delivery_confirmation_deadline`: A timer based on USPS estimated delivery + a buffer (e.g., +7 days).
+- `last_verified_scan`: Updated by the Shipping Oracle.
+
+**Valid Triggers & Next States:**
+1.  `CARRIER_CONFIRMS_DELIVERY` → `AWAITING_BUYER_CONFIRMATION`
+    - **Condition:** The Shipping Oracle reports a "Delivered" status from USPS for the `tracking_number`.
+    - **Action:** The buyer now has a final window to confirm the item matches the description.
+2.  `DELIVERY_TIMEOUT_EXPIRED` → `DISPUTE_IN_TRANSIT`
+    - **Condition:** The `delivery_confirmation_deadline` passes without a "Delivered" scan.
+    - **Action:** A dispute is automatically raised. Funds remain locked pending investigation (was it lost? stalled?).
+
+**On-Chain Logic:**
+- The contract periodically polls or receives updates from the Shipping Oracle.
+- This state exposes the protocol to **real-world carrier delays and errors**, which must be handled by the dispute system.
+
+---
