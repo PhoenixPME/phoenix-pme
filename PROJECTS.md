@@ -51,7 +51,7 @@
 ## How to Contribute
 
 ### 1. Claim a Task
-- **Email:** [YOUR-EMAIL@DOMAIN.COM] with the task number
+- **Email:** [gjf20842@gmail.com] with the task number
 - **Or:** Fork the repo and start working, then submit PR
 
 ### 2. Work on the Task
