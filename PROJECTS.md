@@ -4,7 +4,7 @@
 
 ### 🎯 Task 1: Design Auction State Machine
 **Status:** Open | **Type:** Design | **Priority:** High  
-**GitHub Issue:** [#1](https://github.com/PhoenixPME/protocol-specifications/issues/1)
+GitHub Issue: [#1](https://github.com/PhoenixPME/protocol-specifications/issues/1)
 
 **Description:** Create a visual diagram showing all states and transitions for the auction escrow contract.
 
@@ -16,7 +16,7 @@
 
 ### 🎯 Task 2: Create Basic UI Wireframes  
 **Status:** Open | **Type:** Design | **Priority:** Medium
-**GitHub Issue:** *[To be created]* - Track progress here for now
+**GitHub Issue:** *To be created* - Track progress here for now
 
 **Description:** Design wireframes for PhoenixPME interface (mobile-first).
 
@@ -38,7 +38,7 @@
 
 ### 🎯 Task 3: Research Coreum RWA Standards
 **Status:** Open | **Type:** Research | **Priority:** High
-**GitHub Issue:** [#3](https://github.com/PhoenixPME/protocol-specifications/issues/3)
+GitHub Issue: [#3](https://github.com/PhoenixPME/protocol-specifications/issues/3)
 
 **Description:** Research how Coreum handles tokenized real-world assets for precious metals.
 
