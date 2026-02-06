@@ -4,7 +4,7 @@
 
 ### 🎯 Task 1: Design Auction State Machine
 **Status:** Open | **Type:** Design | **Priority:** High  
-GitHub Issue: [#1](https://github.com/PhoenixPME/protocol-specifications/issues/1)
+**GitHub Issue:** [#1](https://github.com/PhoenixPME/protocol-specifications/issues/1)
 
 **Description:** Create a visual diagram showing all states and transitions for the auction escrow contract.
 
@@ -15,7 +15,7 @@ GitHub Issue: [#1](https://github.com/PhoenixPME/protocol-specifications/issues/
 ---
 
 ### 🎯 Task 2: Create Basic UI Wireframes  
-**Status:** Open | **Type:** Design | **Priority:** Medium
+**Status:** Open | **Type:** Design | **Priority:** Medium  
 **GitHub Issue:** *To be created* - Track progress here for now
 
 **Description:** Design wireframes for PhoenixPME interface (mobile-first).
@@ -37,8 +37,8 @@ GitHub Issue: [#1](https://github.com/PhoenixPME/protocol-specifications/issues/
 ---
 
 ### 🎯 Task 3: Research Coreum RWA Standards
-**Status:** Open | **Type:** Research | **Priority:** High
-GitHub Issue: [#3](https://github.com/PhoenixPME/protocol-specifications/issues/3)
+**Status:** Open | **Type:** Research | **Priority:** High  
+**GitHub Issue:** [#3](https://github.com/PhoenixPME/protocol-specifications/issues/3)
 
 **Description:** Research how Coreum handles tokenized real-world assets for precious metals.
 
@@ -51,7 +51,7 @@ GitHub Issue: [#3](https://github.com/PhoenixPME/protocol-specifications/issues/
 ## How to Contribute
 
 ### 1. Claim a Task
-- **Email:** [gjf20842@gmail.com] with the task number
+- **Email:** [gjf20842@gmail.com](mailto:gjf20842@gmail.com) with the task number
 - **Or:** Fork the repo and start working, then submit PR
 
 ### 2. Work on the Task
@@ -66,6 +66,8 @@ GitHub Issue: [#3](https://github.com/PhoenixPME/protocol-specifications/issues/
 - Create a Pull Request
 - Reference this PROJECTS.md file in your PR description
 
+---
+
 ## Task Status Legend
 - 🔴 **Not Started** - Needs contributor
 - 🟡 **In Progress** - Claimed, work ongoing  
@@ -74,3 +76,7 @@ GitHub Issue: [#3](https://github.com/PhoenixPME/protocol-specifications/issues/
 
 ## Completed Tasks
 *None yet - be the first contributor!*
+
+---
+
+*Last updated: $(date)*
