@@ -151,3 +151,55 @@ The PhoenixPME Auction Escrow is a state machine that manages the lifecycle of a
 - This state exposes the protocol to **real-world carrier delays and errors**, which must be handled by the dispute system.
 
 ---
+
+### State: `AWAITING_BUYER_CONFIRMATION`
+**Purpose:** The item is marked as delivered. The buyer has a final window to inspect it and raise a formal challenge if it is materially different from the listing (e.g., fake, damaged, wrong item).
+
+**Parameters & Storage:**
+- `delivery_timestamp`: When the oracle reported "Delivered".
+- `buyer_challenge_deadline`: `delivery_timestamp` + 72 hours.
+- `seller_payout_address`: Where funds will be sent upon successful completion.
+
+**Valid Triggers & Next States:**
+1.  `BUYER_CONFIRMS_SATISFACTION` → `COMPLETE`
+    - **Action:** Buyer actively signals approval. The locked payment is released to the seller. The seller's bond is returned. The auction concludes successfully.
+2.  `BUYER_RAISES_DISCREPANCY` → `DISPUTE_MATERIAL_DISCREPANCY`
+    - **Condition:** Buyer submits an on-chain challenge before the `buyer_challenge_deadline`. This must include **stake** (a small dispute fee) and **evidence** (photos, description of issue).
+    - **Action:** All funds (buyer's payment, seller's bond) remain frozen. A structured dispute resolution process begins.
+3.  `BUYER_CHALLENGE_DEADLINE_EXPIRES` → `COMPLETE`
+    - **Condition:** The 72-hour window passes with no action from the buyer.
+    - **Action:** This is interpreted as **silent acceptance**. The locked payment is automatically released to the seller. The seller's bond is returned. *This protects the seller from being held hostage.*
+
+**On-Chain Logic:**
+- The 72-hour timer is critical and must be enforced on-chain.
+- The transition to `COMPLETE` on deadline expiry must be automatic.
+
+### State: `DISPUTE_MATERIAL_DISCREPANCY`
+**Purpose:** A formal process to adjudicate a buyer's claim that the received item is not as described.
+
+**Parameters & Storage:**
+- `dispute_raiser`: The buyer's address.
+- `dispute_stake`: A fee deposited by the buyer to raise the dispute (discourages frivolous claims).
+- `dispute_evidence_uri`: Link to buyer-submitted evidence (photos, videos) stored on IPFS.
+- `resolution_deadline`: Timer for the resolution process.
+
+**Proposed Resolution Mechanism:**
+1.  **Escalation Path:**
+    - **Step 1: Peer Review.** The dispute details (with evidence) are published anonymously to a pool of other verified `PhoenixPME` users (e.g., other sellers). They vote on the outcome.
+    - **Step 2: Designated Expert.** If peer review is inconclusive or challenged, the case and a higher fee are escalated to a pre-approved, bonded third-party expert (e.g., a professional numismatist for coins).
+2.  **Valid Triggers & Next States:**
+    - `DISPUTE_RESOLVED_FOR_BUYER` → `COMPLETE_BUYER_REFUNDED`
+        - **Condition:** Dispute resolver finds in favor of the buyer.
+        - **Action:** The buyer's full payment is refunded. The buyer receives the seller's **entire bond** as compensation. The buyer's `dispute_stake` is returned.
+    - `DISPUTE_RESOLVED_FOR_SELLER` → `COMPLETE`
+        - **Condition:** Dispute resolver finds in favor of the seller (item is as described).
+        - **Action:** The seller receives the full payment. The seller's bond is returned. The buyer's `dispute_stake` is **forfeited to the seller** as a penalty for a bad-faith challenge.
+    - `RESOLUTION_DEADLINE_EXPIRES` → `DISPUTE_TIMEOUT`
+        - **Condition:** No resolution is achieved within the `resolution_deadline`.
+        - **Action:** This is a failure state. A conservative default is to refund the buyer (protection) but **not award the bond**. The seller's bond is returned. This penalizes both parties for failing to resolve.
+
+**On-Chain Logic:**
+- This is the most complex part of the contract, requiring a curated reviewer list, voting mechanics, and escalation logic.
+- **Version 1 Suggestion:** Start with a simple, manual escalation to a single, trusted "Protocol Guardian" multisig to keep initial complexity low, with a roadmap to decentralize.
+
+---
