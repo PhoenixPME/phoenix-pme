@@ -4,7 +4,7 @@
 
 ### 🎯 Task 1: Design Auction State Machine
 **Status:** Open | **Type:** Design | **Priority:** High  
-GitHub Issue: [#1](https://github.com/PhoenixPME/protocol-specifications/issues/1)
+**GitHub Issue:** [#1](https://github.com/PhoenixPME/protocol-specifications/issues/1)
 
 **Description:** Create a visual diagram showing all states and transitions for the auction escrow contract.
 
@@ -51,7 +51,7 @@ GitHub Issue: [#1](https://github.com/PhoenixPME/protocol-specifications/issues/
 ## How to Contribute
 
 ### 1. Claim a Task
-- Email: [gjf20842@gmail.com](mailto:gjf20842@gmail.com) with the task number
+- **Email:** [gjf20842@gmail.com](mailto:gjf20842@gmail.com) with the task number
 - **Or:** Fork the repo and start working, then submit PR
 
 ### 2. Work on the Task
