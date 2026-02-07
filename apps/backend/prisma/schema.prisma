@@ -29,6 +29,9 @@ model Auction {
   startingPrice Float
   currentPrice  Float
   status        String    @default("DRAFT")
+  metalType     String    @default("GOLD")  // GOLD, SILVER, PLATINUM, PALLADIUM, RHODIUM, COPPER
+  weight        Float?    // Weight in grams
+  purity        Float?    // Purity percentage (999.9 for 24k gold)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   endTime       DateTime?

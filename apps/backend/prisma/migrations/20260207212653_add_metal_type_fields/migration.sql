@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "auctions" ADD COLUMN     "metalType" TEXT NOT NULL DEFAULT 'GOLD',
+ADD COLUMN     "purity" DOUBLE PRECISION,
+ADD COLUMN     "weight" DOUBLE PRECISION;
