@@ -13,3 +13,11 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Frontend/Next.js
+node_modules/
+.next/
+package-lock.json
+
+# Backup files
+*.backup
