@@ -6,7 +6,7 @@ This project aims to become self-sustaining through a tiny protocol fee (0.01% â
 ## Path for Technical Contributors
 
 ### Step 1: Find an Open Task
-- Check the active issues in the [GitHub Issues](https://github.com/PhoenixPME/protocol-specifications/issues) tab.
+- Check the active issues in the [GitHub Issues](https://github.com/PhoenixPME/coreum-pme/issues) tab.
 - Review the roadmap in [PROJECTS.md](./PROJECTS.md).
 - Comment on an issue or discussion to express interest and share your initial thoughts.
 

@@ -1,4 +1,4 @@
-# PhoenixPME Protocol Roadmap
+# coreum-pme: Phoenix Precious Metals Exchange Roadmap
 
 ## Phase 0: Foundation (Current)
 - ✅ Organization setup

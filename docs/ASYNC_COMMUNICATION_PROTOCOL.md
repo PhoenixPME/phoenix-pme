@@ -2,7 +2,7 @@
 
 ## For Developers Reaching Out
 1. Review our [State Machine Specification](./diagrams/auction_state_machine.md)
-2. Check if you can contribute to any [open issues](https://github.com/PhoenixPME/protocol-specifications/issues)
+2. Check if you can contribute to any [open issues](https://github.com/PhoenixPME/coreum-pme/issues)
 3. Submit a draft PR or technical comment on relevant issues
 4. If serious about collaboration, email technical questions to gjf20842@gmail.com
 

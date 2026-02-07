@@ -4,9 +4,9 @@
 This is for **async, written-only** communication about the PhoenixPME protocol. No real-time chat required.
 
 ## 📚 First Steps for New Members
-1. Read our [Async Communication Protocol](https://github.com/PhoenixPME/protocol-specifications/blob/main/docs/ASYNC_COMMUNICATION_PROTOCOL.md)
-2. Review the [State Machine Specification](https://github.com/PhoenixPME/protocol-specifications/blob/main/docs/diagrams/auction_state_machine.md)
-3. Check [PROJECTS_NEW.md](https://github.com/PhoenixPME/protocol-specifications/blob/main/PROJECTS_NEW.md) for open tasks
+1. Read our [Async Communication Protocol](https://github.com/PhoenixPME/coreum-pme/blob/main/docs/ASYNC_COMMUNICATION_PROTOCOL.md)
+2. Review the [State Machine Specification](https://github.com/PhoenixPME/coreum-pme/blob/main/docs/diagrams/auction_state_machine.md)
+3. Check [PROJECTS_NEW.md](https://github.com/PhoenixPME/coreum-pme/blob/main/PROJECTS_NEW.md) for open tasks
 
 ## 💬 Discussion Categories
 - **Announcements**: Project updates and milestones
@@ -27,8 +27,8 @@ This is for **async, written-only** communication about the PhoenixPME protocol.
 - Help others when you can
 
 ## 🔗 Quick Links
-- [Repository](https://github.com/PhoenixPME/protocol-specifications)
+- [Repository](https://github.com/PhoenixPME/coreum-pme)
 - [Summary Script](./scripts/summary.sh)
-- [Contribution Guide](https://github.com/PhoenixPME/protocol-specifications/blob/main/CONTRIBUTOR_GUIDE.md)
+- [Contribution Guide](https://github.com/PhoenixPME/coreum-pme/blob/main/CONTRIBUTOR_GUIDE.md)
 
 **Remember:** We value thoughtful, written communication over quick replies. Take your time to formulate clear questions and answers.

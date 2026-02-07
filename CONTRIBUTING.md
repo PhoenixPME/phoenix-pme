@@ -1,4 +1,4 @@
-# Contributing to PhoenixPME Protocol
+# Contributing to coreum-pme: Phoenix Precious Metals Exchange
 
 ## How to Contribute
 1. Fork this repository

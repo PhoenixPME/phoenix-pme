@@ -1,4 +1,4 @@
-# PhoenixPME Protocol - Manifesto
+# coreum-pme: Phoenix Precious Metals Exchange - Manifesto
 
 ## The Problem
 The current system for trading physical precious metals is broken:

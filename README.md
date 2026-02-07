@@ -1,4 +1,4 @@
-# PhoenixPME Protocol
+# 🦅 coreum-pme: Phoenix Precious Metals Exchange
 
 **Decentralized P2P precious metals trading on Coreum & XRPL**
 

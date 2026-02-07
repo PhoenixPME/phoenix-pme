@@ -4,7 +4,7 @@
 
 **Before posting:**
 1. Search existing discussions
-2. Check the [Technical FAQ](https://github.com/PhoenixPME/protocol-specifications/blob/main/docs/TECHNICAL_FAQ.md)
+2. Check the [Technical FAQ](https://github.com/PhoenixPME/coreum-pme/blob/main/docs/TECHNICAL_FAQ.md)
 3. Review relevant documentation
 
 **Post format:**
