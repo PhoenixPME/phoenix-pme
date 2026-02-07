@@ -1,6 +1,6 @@
 'use client';
 
-import { PurityPreset } from '@/components/auctions/types/phase2.types';
+import * as React from 'react';
 
 interface PuritySelectorProps {
   metalType: 'Gold' | 'Silver' | 'Platinum' | 'Palladium' | 'Other';
@@ -8,7 +8,11 @@ interface PuritySelectorProps {
   onChange: (purity: number) => void;
 }
 
-const PURITY_PRESETS: Record<string, PurityPreset[]> = {
+const PURITY_OPTIONS: Record<'Gold' | 'Silver' | 'Platinum' | 'Palladium' | 'Other', Array<{
+  value: number;
+  label: string;
+  description: string;
+}>> = {
   Gold: [
     { value: 0.9999, label: '.9999', description: 'Four Nines Fine' },
     { value: 0.999, label: '.999', description: 'Three Nines Fine' },
@@ -31,52 +35,56 @@ const PURITY_PRESETS: Record<string, PurityPreset[]> = {
     { value: 0.9995, label: '.9995', description: 'Fine' },
     { value: 0.999, label: '.999', description: 'Fine' },
     { value: 0.95, label: '.950', description: 'Platinum' },
+    { value: 0.90, label: '.900', description: 'Platinum Alloy' },
   ],
   Palladium: [
     { value: 0.9995, label: '.9995', description: 'Fine' },
     { value: 0.999, label: '.999', description: 'Fine' },
+    { value: 0.95, label: '.950', description: 'Palladium' },
+    { value: 0.90, label: '.900', description: 'Palladium Alloy' },
   ],
   Other: [
     { value: 1, label: '1.000', description: 'Pure' },
     { value: 0.999, label: '.999', description: 'High Purity' },
     { value: 0.95, label: '.950', description: 'Commercial' },
+    { value: 0.90, label: '.900', description: 'Standard' },
+    { value: 0.85, label: '.850', description: 'Alloy' },
   ],
 };
 
 export default function PuritySelector({ metalType, value, onChange }: PuritySelectorProps) {
-  const presets = PURITY_PRESETS[metalType] || PURITY_PRESETS.Other;
+  const presets = PURITY_OPTIONS[metalType];
 
   return (
     <div className="space-y-4">
       <label className="block text-sm font-medium text-gray-700">
-        Metal Purity / Fineness
+        Metal Purity
       </label>
       
-      {/* Preset buttons */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        {presets.map((preset) => (
-          <button
-            key={preset.value}
-            type="button"
-            onClick={() => onChange(preset.value)}
-            className={\`
-              p-3 rounded-lg border-2 text-center transition-all duration-200
-              \${Math.abs(value - preset.value) < 0.0001
-                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                : 'border-gray-200 bg-white hover:bg-gray-50 text-gray-700'
-              }
-            \`}
-          >
-            <div className="font-bold text-lg">{preset.label}</div>
-            <div className="text-xs mt-1 opacity-75">{preset.description}</div>
-          </button>
-        ))}
+        {presets.map((preset) => {
+          const isSelected = Math.abs(value - preset.value) < 0.0001;
+          const buttonClass = isSelected
+            ? 'border-blue-500 bg-blue-50 text-blue-700'
+            : 'border-gray-200 bg-white hover:bg-gray-50 text-gray-700';
+          
+          return (
+            <button
+              key={preset.value}
+              type="button"
+              onClick={() => onChange(preset.value)}
+              className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${buttonClass}`}
+            >
+              <div className="font-bold text-lg">{preset.label}</div>
+              <div className="text-xs mt-1 opacity-75">{preset.description}</div>
+            </button>
+          );
+        })}
       </div>
       
-      {/* Custom input */}
       <div className="pt-4 border-t">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Custom Purity (0.000 - 1.000)
+          Custom Purity
         </label>
         <div className="flex items-center space-x-3">
           <input
@@ -92,16 +100,9 @@ export default function PuritySelector({ metalType, value, onChange }: PuritySel
               }
             }}
             className="w-32 px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="0.000 - 1.000"
           />
-          <div className="text-gray-600">
-            <span className="font-medium">{(value * 100).toFixed(2)}%</span>
-            <span className="text-sm ml-2">pure</span>
-          </div>
+          <span className="text-gray-600">= {(value * 100).toFixed(2)}% pure</span>
         </div>
-        <p className="mt-1 text-sm text-gray-500">
-          Pure metal = 1.000, 90% pure = 0.900, 14K gold = 0.585
-        </p>
       </div>
     </div>
   );

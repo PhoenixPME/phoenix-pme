@@ -1,672 +1,203 @@
 'use client';
 
 import { useState } from 'react';
-import ImageUpload from '@/components/common/ImageUpload';
+import MetalSelector from './forms/MetalSelector';
+import FormTypeSelector from './forms/phase2/FormTypeSelector';
+import WeightInput from './forms/WeightInput';
+import PuritySelector from './forms/phase2/PuritySelector';
+import CertificationInput from './forms/phase2/CertificationInput';
+import SerialNumberInput from './forms/phase2/SerialNumberInput';
+import ImageUploader from './forms/phase2/ImageUploader';
+import PriceCalculator from './forms/PriceCalculator';
 
-type MetalType = 'Gold' | 'Silver' | 'Platinum' | 'Palladium' | 'Other';
-type FormType = 'Coin' | 'Round' | 'Bar' | 'Jewelry' | 'Scrap' | 'Other';
-type WeightUnit = 'troy_oz' | 'grams' | 'ounces';
-type CurrencyType = 'USDC' | 'TEST' | 'XRP' | 'CORE';
+// Define the exact type that CertificationInput expects
+type CertificationType = {
+  isGraded: boolean;
+  service?: string;
+  grade?: string;
+  certNumber?: string;
+};
 
 export default function CreateAuctionForm() {
-  // Form state
-  const [itemType, setItemType] = useState<MetalType>('Gold');
-  const [form, setForm] = useState<FormType>('Coin');
-  const [purity, setPurity] = useState<number>(0.999);
+  // Basic Info
+  const [metalType, setMetalType] = useState<'Gold' | 'Silver' | 'Platinum' | 'Palladium' | 'Other'>('Gold');
+  const [formType, setFormType] = useState<'coin' | 'round' | 'bar' | 'jewelry' | 'other'>('coin');
+  
+  // Weight & Purity
   const [weight, setWeight] = useState<number>(1);
-  const [weightUnit, setWeightUnit] = useState<WeightUnit>('troy_oz');
-  const [itemName, setItemName] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [images, setImages] = useState<string[]>([]);
+  const [weightUnit, setWeightUnit] = useState<'troy_oz' | 'grams' | 'ounces'>('troy_oz');
+  const [purity, setPurity] = useState<number>(0.999);
+  
+  // Certification - Use the exact type
+  const [certification, setCertification] = useState<CertificationType>({
+    isGraded: false,
+    service: undefined,
+    grade: undefined,
+    certNumber: undefined,
+  });
+  
+  // Handler that matches CertificationInput's onChange type
+  const handleCertificationChange = (cert: CertificationType) => {
+    setCertification(cert);
+  };
+  
+  // Details
+  const [serialNumber, setSerialNumber] = useState<string>('');
+  const [images, setImages] = useState<any[]>([]);
+  
+  // Pricing
+  const [estimatedValue, setEstimatedValue] = useState<number>(0);
   const [startingPrice, setStartingPrice] = useState<number>(0);
   const [buyNowPrice, setBuyNowPrice] = useState<number | undefined>(undefined);
-  const [currency, setCurrency] = useState<CurrencyType>('TEST');
-  const [auctionDuration, setAuctionDuration] = useState<number>(24);
-  const [requiresShipping, setRequiresShipping] = useState<boolean>(true);
-  const [location, setLocation] = useState<string>('');
-  const [serialNumber, setSerialNumber] = useState<string>('');
-  const [certification, setCertification] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form options
-  const metalTypes: MetalType[] = ['Gold', 'Silver', 'Platinum', 'Palladium', 'Other'];
-  const formTypes: FormType[] = ['Coin', 'Round', 'Bar', 'Jewelry', 'Scrap', 'Other'];
-  const weightUnits = [
-    { value: 'troy_oz' as WeightUnit, label: 'Troy Ounces' },
-    { value: 'grams' as WeightUnit, label: 'Grams' },
-    { value: 'ounces' as WeightUnit, label: 'Avoirdupois Ounces' }
-  ];
-  const currencies: CurrencyType[] = ['TEST', 'USDC', 'XRP', 'CORE'];
-  const durationOptions = [
-    { value: 1, label: '1 hour' },
-    { value: 6, label: '6 hours' },
-    { value: 24, label: '24 hours' },
-    { value: 72, label: '3 days' },
-    { value: 168, label: '7 days' }
-  ];
-
-  // Calculate weight in troy oz
-  const getWeightInTroyOz = () => {
-    switch (weightUnit) {
-      case 'troy_oz': return weight;
-      case 'grams': return weight / 31.1035;
-      case 'ounces': return weight / 1.09714;
-      default: return weight;
-    }
-  };
-
-  // Estimated value
-  const getEstimatedValue = () => {
-    const weightInTroyOz = getWeightInTroyOz();
-    const purityMultiplier = purity;
-    
-    const spotPrices: Record<MetalType, number> = {
-      'Gold': 2100,
-      'Silver': 24.5,
-      'Platinum': 950,
-      'Palladium': 1050,
-      'Other': 0
-    };
-    
-    return weightInTroyOz * purityMultiplier * spotPrices[itemType];
-  };
-
-  // Form validation
-  const validateForm = () => {
-    if (!itemName.trim()) {
-      alert('Please enter an item name');
-      return false;
-    }
-    if (weight <= 0) {
-      alert('Please enter a valid weight');
-      return false;
-    }
-    if (startingPrice <= 0) {
-      alert('Please enter a starting price');
-      return false;
-    }
-    if (buyNowPrice !== undefined && buyNowPrice <= startingPrice) {
-      alert('Buy Now price must be higher than starting price');
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
+    const auctionData = {
+      metalType,
+      formType,
+      weight,
+      weightUnit,
+      purity,
+      certification,
+      serialNumber,
+      images: images.length,
+      estimatedValue,
+      startingPrice,
+      buyNowPrice,
+      createdAt: new Date().toISOString()
+    };
     
-    try {
-      const auctionData = {
-        itemType,
-        form,
-        purity,
-        weight,
-        weightUnit,
-        itemName,
-        description,
-        images,
-        startingPrice,
-        buyNowPrice,
-        currency,
-        auctionDuration,
-        requiresShipping,
-        location,
-        serialNumber,
-        certification,
-        estimatedValue: getEstimatedValue(),
-        createdAt: new Date().toISOString()
-      };
-      
-      // Save to localStorage as draft
-      localStorage.setItem('auction_draft', JSON.stringify(auctionData));
-      
-      console.log('Auction data:', auctionData);
-      alert('Auction created successfully! (Mock for now)\n\nData saved as draft.');
-      
-      // Optionally clear form after successful submission
-      // setItemName('');
-      // setDescription('');
-      // setImages([]);
-      // etc...
-      
-    } catch (error) {
-      console.error('Error creating auction:', error);
-      alert('Failed to create auction');
-    } finally {
-      setIsSubmitting(false);
-    }
+    localStorage.setItem('auction_draft', JSON.stringify(auctionData));
+    
+    console.log('Auction created:', auctionData);
+    alert(`Auction created! Estimated value: $${estimatedValue.toFixed(2)}`);
   };
-
-  // Load draft from localStorage on component mount
-  const loadDraft = () => {
-    const draft = localStorage.getItem('auction_draft');
-    if (draft) {
-      if (confirm('Found a saved draft. Load it?')) {
-        const parsed = JSON.parse(draft);
-        setItemType(parsed.itemType || 'Gold');
-        setForm(parsed.form || 'Coin');
-        setPurity(parsed.purity || 0.999);
-        setWeight(parsed.weight || 1);
-        setWeightUnit(parsed.weightUnit || 'troy_oz');
-        setItemName(parsed.itemName || '');
-        setDescription(parsed.description || '');
-        setImages(parsed.images || []);
-        setStartingPrice(parsed.startingPrice || 0);
-        setBuyNowPrice(parsed.buyNowPrice);
-        setCurrency(parsed.currency || 'TEST');
-        setAuctionDuration(parsed.auctionDuration || 24);
-        setRequiresShipping(parsed.requiresShipping !== undefined ? parsed.requiresShipping : true);
-        setLocation(parsed.location || '');
-        setSerialNumber(parsed.serialNumber || '');
-        setCertification(parsed.certification || '');
-      }
-    }
-  };
-
-  // Call loadDraft on component mount
-  useState(() => {
-    loadDraft();
-  });
 
   return (
-    <div className="create-auction-form">
-      <div style={{ 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        padding: '2rem',
-        borderRadius: '12px 12px 0 0',
-        position: 'relative'
-      }}>
-        <button
-          type="button"
-          onClick={loadDraft}
-          style={{
-            position: 'absolute',
-            top: '1rem',
-            right: '1rem',
-            padding: '0.5rem 1rem',
-            background: 'rgba(255,255,255,0.2)',
-            color: 'white',
-            border: '1px solid rgba(255,255,255,0.3)',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '0.875rem'
-          }}
-        >
-          Load Draft
-        </button>
-        
-        <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Create Precious Metals Auction</h1>
-        <p>List your gold, silver, platinum, or palladium for sale</p>
-      </div>
-
-      <form onSubmit={handleSubmit} style={{ 
-        padding: '2rem',
-        background: 'white',
-        borderRadius: '0 0 12px 12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-      }}>
-        {/* Image Upload - Moved to top for better UX */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#333' }}>1. Upload Photos</h2>
-          <ImageUpload 
-            onImagesChange={setImages}
-            maxImages={5}
-          />
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Create Precious Metals Auction</h1>
+          <p className="text-gray-600 mt-2">List your gold, silver, platinum, or palladium for sale</p>
         </div>
 
-        {/* Metal Type Selection */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#333' }}>2. Select Metal Type</h2>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            {metalTypes.map((metal) => (
-              <button
-                key={metal}
-                type="button"
-                onClick={() => setItemType(metal)}
-                style={{
-                  padding: '1rem 1.5rem',
-                  background: itemType === metal ? '#3b82f6' : '#f3f4f6',
-                  color: itemType === metal ? 'white' : '#6B7280',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  transition: 'all 0.2s'
-                }}
-              >
-                {metal}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Item Details */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#333' }}>3. Item Details</h2>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            {/* Form Type */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Form</label>
-              <select
-                value={form}
-                onChange={(e) => setForm(e.target.value as FormType)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '1rem'
-                }}
-              >
-                {formTypes.map((formType) => (
-                  <option key={formType} value={formType}>{formType}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Purity - Simplified for now */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Purity</label>
-              <select
-                value={purity}
-                onChange={(e) => setPurity(parseFloat(e.target.value))}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '1rem'
-                }}
-              >
-                <option value={0.9999}>.9999 fine (Four Nines)</option>
-                <option value={0.999}>.999 fine (Three Nines)</option>
-                <option value={0.995}>.995 fine</option>
-                <option value={0.925}>.925 sterling</option>
-                <option value={0.900}>.900 coin silver</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Weight Input */}
-          <div style={{ marginTop: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Weight</label>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
-                min="0"
-                step="0.01"
-                style={{
-                  flex: 1,
-                  padding: '0.75rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '1rem'
-                }}
-                placeholder="Enter weight"
-                required
-              />
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {weightUnits.map((unit) => (
-                  <button
-                    key={unit.value}
-                    type="button"
-                    onClick={() => setWeightUnit(unit.value)}
-                    style={{
-                      padding: '0.75rem 1rem',
-                      background: weightUnit === unit.value ? '#3b82f6' : '#f3f4f6',
-                      color: weightUnit === unit.value ? 'white' : '#6B7280',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontWeight: '500'
-                    }}
-                  >
-                    {unit.label}
-                  </button>
-                ))}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Step 1: Basic Info */}
+          <section className="bg-white p-6 rounded-xl border shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">1. Basic Information</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">Metal Type</label>
+                <MetalSelector value={metalType} onChange={setMetalType} />
+              </div>
+              <div>
+                <FormTypeSelector value={formType} onChange={setFormType} />
               </div>
             </div>
-            <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280' }}>
-              ≈ {getWeightInTroyOz().toFixed(4)} troy ounces
-            </p>
-          </div>
+          </section>
 
-          {/* Item Name & Description */}
-          <div style={{ marginTop: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Item Name *
-            </label>
-            <input
-              type="text"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '1rem',
-                marginBottom: '1.5rem'
-              }}
-              placeholder="e.g., 2024 American Gold Eagle 1oz Coin"
-              required
-            />
-
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '1rem',
-                resize: 'vertical'
-              }}
-              placeholder="Describe your item's condition, year, mint, special features..."
-            />
-          </div>
-        </div>
-
-        {/* Pricing */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#333' }}>4. Pricing</h2>
-          
-          <div style={{ 
-            background: '#f8fafc', 
-            padding: '1.5rem', 
-            borderRadius: '8px',
-            marginBottom: '1.5rem'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span style={{ color: '#6B7280' }}>Estimated metal value:</span>
-              <span style={{ fontWeight: 'bold' }}>${getEstimatedValue().toFixed(2)} USD</span>
+          {/* Step 2: Weight & Purity */}
+          <section className="bg-white p-6 rounded-xl border shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">2. Weight & Purity</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <WeightInput
+                  weight={weight}
+                  unit={weightUnit}
+                  onWeightChange={setWeight}
+                  onUnitChange={setWeightUnit}
+                />
+              </div>
+              <div>
+                <PuritySelector metalType={metalType} value={purity} onChange={setPurity} />
+              </div>
             </div>
-            <div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
-              Based on current spot prices (Gold: $2100/oz, Silver: $24.5/oz, Platinum: $950/oz, Palladium: $1050/oz)
-            </div>
-          </div>
+          </section>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            {/* Starting Price */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                Starting Price * (Minimum: 10 TEST)
-              </label>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
+          {/* Step 3: Certification */}
+          <section className="bg-white p-6 rounded-xl border shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">3. Certification & Grading</h2>
+            <CertificationInput
+              value={certification}
+              onChange={handleCertificationChange}
+            />
+          </section>
+
+          {/* Step 4: Details & Photos */}
+          <section className="bg-white p-6 rounded-xl border shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">4. Details & Photos</h2>
+            <div className="space-y-6">
+              <div>
+                <SerialNumberInput value={serialNumber} onChange={setSerialNumber} />
+              </div>
+              <div>
+                <ImageUploader onImagesChange={setImages} />
+              </div>
+            </div>
+          </section>
+
+          {/* Step 5: Pricing */}
+          <section className="bg-white p-6 rounded-xl border shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">5. Set Your Price</h2>
+            <PriceCalculator
+              metalType={metalType}
+              weight={weight}
+              weightUnit={weightUnit}
+              purity={purity}
+              onPriceUpdate={setEstimatedValue}
+            />
+          </section>
+
+          {/* Step 6: Auction Settings */}
+          <section className="bg-white p-6 rounded-xl border shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">6. Auction Settings</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Starting Price</label>
                 <input
                   type="number"
                   value={startingPrice}
                   onChange={(e) => setStartingPrice(parseFloat(e.target.value) || 0)}
                   min="10"
                   step="0.01"
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px 0 0 6px',
-                    fontSize: '1rem'
-                  }}
-                  placeholder="10.00"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                  placeholder="Minimum 10 TEST"
                   required
                 />
-                <select
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value as CurrencyType)}
-                  style={{
-                    padding: '0.75rem',
-                    border: '1px solid #d1d5db',
-                    borderLeft: 'none',
-                    borderRadius: '0 6px 6px 0',
-                    fontSize: '1rem',
-                    background: '#f9fafb'
-                  }}
-                >
-                  {currencies.map((curr) => (
-                    <option key={curr} value={curr}>{curr}</option>
-                  ))}
-                </select>
               </div>
-            </div>
-
-            {/* Buy Now Price (Optional) */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                Buy Now Price (Optional)
-              </label>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Buy Now Price (Optional)</label>
                 <input
                   type="number"
                   value={buyNowPrice || ''}
                   onChange={(e) => setBuyNowPrice(e.target.value ? parseFloat(e.target.value) : undefined)}
                   min={startingPrice + 1}
                   step="0.01"
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px 0 0 6px',
-                    fontSize: '1rem'
-                  }}
-                  placeholder="Optional instant buy price"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                  placeholder="Optional instant buy"
                 />
-                <div style={{
-                  padding: '0.75rem',
-                  border: '1px solid #d1d5db',
-                  borderLeft: 'none',
-                  borderRadius: '0 6px 6px 0',
-                  fontSize: '1rem',
-                  background: '#f9fafb',
-                  color: '#6B7280'
-                }}>
-                  {currency}
-                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </section>
 
-        {/* Auction Settings */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#333' }}>5. Auction Settings</h2>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            {/* Duration */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Auction Duration</label>
-              <select
-                value={auctionDuration}
-                onChange={(e) => setAuctionDuration(parseInt(e.target.value))}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '1rem'
-                }}
+          {/* Submit */}
+          <div className="bg-white p-6 rounded-xl border shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Ready to List</h3>
+                <p className="text-gray-600">Your item will be listed for auction</p>
+              </div>
+              <button
+                type="submit"
+                className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
               >
-                {durationOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Shipping */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Shipping</label>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <button
-                  type="button"
-                  onClick={() => setRequiresShipping(true)}
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem',
-                    background: requiresShipping ? '#3b82f6' : '#f3f4f6',
-                    color: requiresShipping ? 'white' : '#6B7280',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '500'
-                  }}
-                >
-                  Shipping Required
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRequiresShipping(false)}
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem',
-                    background: !requiresShipping ? '#3b82f6' : '#f3f4f6',
-                    color: !requiresShipping ? 'white' : '#6B7280',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '500'
-                  }}
-                >
-                  Local Pickup Only
-                </button>
-              </div>
+                Create Auction Listing
+              </button>
             </div>
           </div>
-
-          {/* Location */}
-          {requiresShipping && (
-            <div style={{ marginTop: '1.5rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Ship From Location</label>
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '1rem'
-                }}
-                placeholder="e.g., United States"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Additional Details */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#333' }}>6. Additional Details (Optional)</h2>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            {/* Serial Number */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Serial Number</label>
-              <input
-                type="text"
-                value={serialNumber}
-                onChange={(e) => setSerialNumber(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '1rem'
-                }}
-                placeholder="e.g., ABC123456"
-              />
-            </div>
-
-            {/* Certification */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Certification</label>
-              <input
-                type="text"
-                value={certification}
-                onChange={(e) => setCertification(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '1rem'
-                }}
-                placeholder="e.g., NGC MS70, PCGS PR69"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingTop: '2rem',
-          borderTop: '1px solid #e5e7eb'
-        }}>
-          <div>
-            <button
-              type="button"
-              onClick={() => {
-                const draftData = {
-                  itemType, form, purity, weight, weightUnit, itemName, description,
-                  images, startingPrice, buyNowPrice, currency, auctionDuration,
-                  requiresShipping, location, serialNumber, certification
-                };
-                localStorage.setItem('auction_draft', JSON.stringify(draftData));
-                alert('Draft saved!');
-              }}
-              style={{
-                padding: '0.5rem 1rem',
-                background: '#f3f4f6',
-                color: '#6B7280',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '0.875rem'
-              }}
-            >
-              Save Draft
-            </button>
-          </div>
-          
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ marginBottom: '0.5rem' }}>
-              <span style={{ color: '#6B7280', fontSize: '0.875rem' }}>Auction duration: </span>
-              <span style={{ fontWeight: 'bold' }}>{auctionDuration} hours</span>
-            </div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              style={{
-                padding: '1rem 2rem',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                opacity: isSubmitting ? 0.7 : 1,
-                transition: 'all 0.2s'
-              }}
-            >
-              {isSubmitting ? 'Creating Auction...' : 'Create Auction'}
-            </button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

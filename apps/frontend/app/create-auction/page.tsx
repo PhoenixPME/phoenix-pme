@@ -3,73 +3,52 @@ import WalletConnector from '@/components/WalletConnector';
 
 export default function CreateAuctionPage() {
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
-      <div style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto',
-        padding: '2rem'
-      }}>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <header style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ fontSize: '2rem' }}>🦅</div>
-            <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#1f2937' }}>PhoenixPME</h1>
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="text-3xl">🦅</div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">PhoenixPME</h1>
+              <p className="text-gray-600 text-sm">Decentralized Precious Metals Exchange</p>
+            </div>
           </div>
           <WalletConnector />
         </header>
 
         {/* Main Content */}
         <main>
-          <div style={{ 
-            background: 'white', 
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            overflow: 'hidden'
-          }}>
-            <CreateAuctionForm />
-          </div>
+          <CreateAuctionForm />
+        </main>
 
-          {/* Info Panel */}
-          <div style={{ 
-            marginTop: '2rem',
-            padding: '1.5rem',
-            background: 'white',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-          }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem', color: '#1f2937' }}>
-              How Auctions Work on PhoenixPME
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
-              <div>
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🛡️</div>
-                <h4 style={{ fontWeight: '600', marginBottom: '0.5rem' }}>Secure Escrow</h4>
-                <p style={{ color: '#6B7280', fontSize: '0.875rem' }}>
-                  Funds held in smart contract until delivery confirmed. No counterparty risk.
-                </p>
-              </div>
-              <div>
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚖️</div>
-                <h4 style={{ fontWeight: '600', marginBottom: '0.5rem' }}>Transparent Bidding</h4>
-                <p style={{ color: '#6B7280', fontSize: '0.875' }}>
-                  All bids on-chain. No hidden fees. 0% platform fees during bootstrap phase.
-                </p>
-              </div>
-              <div>
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔗</div>
-                <h4 style={{ fontWeight: '600', marginBottom: '0.5rem' }}>Cross-Chain Settlement</h4>
-                <p style={{ color: '#6B7280', fontSize: '0.875rem' }}>
-                  Pay with Coreum tokens, XRP, or stablecoins. Physical delivery with tracking.
-                </p>
-              </div>
+        {/* Footer Info */}
+        <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">How PhoenixPME Auctions Work</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-xl border">
+              <div className="text-3xl mb-4">🛡️</div>
+              <h3 className="font-semibold text-lg mb-2">Secure Escrow</h3>
+              <p className="text-gray-600">
+                Funds held in smart contract until delivery confirmed. 0% counterparty risk.
+              </p>
+            </div>
+            <div className="bg-white p-6 rounded-xl border">
+              <div className="text-3xl mb-4">⚖️</div>
+              <h3 className="font-semibold text-lg mb-2">Fair Pricing</h3>
+              <p className="text-gray-600">
+                Sellers set their own spot prices. No forced valuations. You control your pricing.
+              </p>
+            </div>
+            <div className="bg-white p-6 rounded-xl border">
+              <div className="text-3xl mb-4">🔗</div>
+              <h3 className="font-semibold text-lg mb-2">Cross-Chain</h3>
+              <p className="text-gray-600">
+                Pay with Coreum tokens, XRP, or stablecoins. Physical delivery with tracking.
+              </p>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     </div>
   );
