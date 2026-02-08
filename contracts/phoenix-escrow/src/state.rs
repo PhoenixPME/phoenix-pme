@@ -1,11 +1,7 @@
-﻿use cosmwasm_std::Uint128;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use cosmwasm_std::{Addr, Uint128, Timestamp};
 
-// ==================== YOUR MAINNET WALLET ====================
-pub const DEVELOPER_WALLET: &str = "core1mj58cdfrkc8uyunw2rna3wvkatdjfhd6lwtu0m";
-
-// ==================== DATA STRUCTURES ====================
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct Auction {
     pub seller: String,
@@ -31,15 +27,16 @@ pub struct Bid {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub enum AuctionStatus {
     Active,
-    Ended,
+    Sold,
+    EndedNoSale,
+    EndedNoBids,
     Cancelled,
 }
 
-// ==================== STORAGE ====================
+// Storage
+use cosmwasm_std::StdResult;
 use cw_storage_plus::{Item, Map};
 
-// Counter for auction IDs
+pub const DEVELOPER_WALLET: &str = "coreum1v4f8s9z4h7j0q3x6k5w8n2r1t0y7u6i5o4p3l2k9j8h7g6f5";
 pub const AUCTION_COUNT: Item<u64> = Item::new("auction_count");
-
-// Store all auctions by ID
 pub const AUCTIONS: Map<u64, Auction> = Map::new("auctions");

@@ -130,7 +130,7 @@ pub fn execute_place_bid(
     let bid = Bid {
         bidder: info.sender.to_string(),
         amount,
-        timestamp: env.block.time,
+        timestamp: env.block.time.seconds(),
     };
     
     // Update auction
