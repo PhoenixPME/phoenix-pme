@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Search, Filter, Download, Eye, Mail, Shield, CheckCircle, XCircle, MoreVertical, UserPlus, UserX, Users } from 'lucide-react';
 import { Search, Filter, Download, Eye, Mail, Shield, CheckCircle, XCircle, MoreVertical, UserPlus, UserX } from 'lucide-react';
 
 export interface User {

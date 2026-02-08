@@ -1,112 +1,73 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
-// Extend Window interface to include leap
-declare global {
-  interface Window {
-    leap?: any;
-  }
-}
+import { useEffect, useState } from 'react';
 
 export default function WalletConnector() {
-  const [leapAvailable, setLeapAvailable] = useState(false);
   const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
-  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
-    // Check if Leap wallet is available
-    setLeapAvailable(!!window.leap);
-
-    // Check for saved address
-    const saved = localStorage.getItem('phoenix_wallet');
+    const saved = localStorage.getItem('wallet_connection');
     if (saved) {
       try {
-        const { address, timestamp } = JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        const { address, timestamp } = parsed || {};
+        
         // Check if saved within last 24 hours
-        if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+        if (address && timestamp && Date.now() - timestamp < 24 * 60 * 60 * 1000) {
           setConnectedAddress(address);
         }
-      } catch (e) {
-        console.error('Failed to parse saved wallet:', e);
+      } catch {
+        // Clear corrupted data
+        localStorage.removeItem('wallet_connection');
       }
     }
   }, []);
 
-  const connectLeap = async () => {
-    if (!window.leap) {
-      alert('Leap wallet not detected. Please install Leap wallet first.');
-      window.open('https://www.leapwallet.io/', '_blank');
-      return;
-    }
-
-    setIsConnecting(true);
-    try {
-      // Request connection
-      await window.leap.enable('phoenix-pme');
-      
-      // Get accounts
-      const accounts = await window.leap.getKey();
-      const address = accounts?.address;
-      
-      if (address) {
-        setConnectedAddress(address);
-        // Save to localStorage
-        localStorage.setItem('phoenix_wallet', JSON.stringify({
-          address,
-          timestamp: Date.now()
-        }));
-      }
-    } catch (error) {
-      console.error('Failed to connect Leap wallet:', error);
-      alert('Failed to connect wallet. Please try again.');
-    } finally {
-      setIsConnecting(false);
-    }
+  const connectWallet = () => {
+    // Simulate wallet connection
+    const mockAddress = 'core1...' + Math.random().toString(36).substring(7);
+    const connectionData = {
+      address: mockAddress,
+      timestamp: Date.now(),
+    };
+    
+    localStorage.setItem('wallet_connection', JSON.stringify(connectionData));
+    setConnectedAddress(mockAddress);
+    
+    alert(`Connected to wallet: ${mockAddress}`);
   };
 
-  const disconnect = () => {
+  const disconnectWallet = () => {
+    localStorage.removeItem('wallet_connection');
     setConnectedAddress(null);
-    localStorage.removeItem('phoenix_wallet');
   };
 
   return (
-    <div className="wallet-connector">
+    <div className="bg-white rounded-lg shadow-sm border p-4">
+      <h3 className="font-medium text-gray-900 mb-2">Wallet Connection</h3>
+      
       {connectedAddress ? (
-        <div className="flex items-center space-x-3">
-          <div className="text-sm">
-            <div className="font-medium">Connected</div>
-            <div className="text-gray-500 text-xs truncate max-w-[120px]">
-              {connectedAddress.slice(0, 10)}...{connectedAddress.slice(-8)}
-            </div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-green-600">✅ Connected</span>
+            <button
+              onClick={disconnectWallet}
+              className="px-3 py-1 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100"
+            >
+              Disconnect
+            </button>
           </div>
-          <button
-            onClick={disconnect}
-            className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
-          >
-            Disconnect
-          </button>
+          <div className="text-xs font-mono bg-gray-50 p-2 rounded truncate">
+            {connectedAddress}
+          </div>
         </div>
       ) : (
         <button
-          onClick={connectLeap}
-          disabled={isConnecting || !leapAvailable}
-          className={`
-            px-4 py-2 rounded-lg font-medium transition-all
-            ${leapAvailable
-              ? 'bg-blue-600 hover:bg-blue-700 text-white'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }
-          `}
+          onClick={connectWallet}
+          className="w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600"
         >
-          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+          Connect Wallet
         </button>
-      )}
-      
-      {!leapAvailable && (
-        <div className="mt-2 text-xs text-gray-500">
-          Install <a href="https://www.leapwallet.io/" className="text-blue-500" target="_blank">Leap Wallet</a>
-        </div>
       )}
     </div>
   );

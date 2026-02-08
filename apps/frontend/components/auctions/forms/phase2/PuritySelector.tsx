@@ -53,21 +53,22 @@ const PURITY_OPTIONS: Record<'Gold' | 'Silver' | 'Platinum' | 'Palladium' | 'Oth
 };
 
 export default function PuritySelector({ metalType, value, onChange }: PuritySelectorProps) {
-  const presets = PURITY_OPTIONS[metalType];
+  // Get presets with fallback to 'Gold' if metalType is invalid
+  const presets = PURITY_OPTIONS[metalType] || PURITY_OPTIONS.Gold;
 
   return (
     <div className="space-y-4">
       <label className="block text-sm font-medium text-gray-700">
         Metal Purity
       </label>
-      
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {presets.map((preset) => {
           const isSelected = Math.abs(value - preset.value) < 0.0001;
           const buttonClass = isSelected
             ? 'border-blue-500 bg-blue-50 text-blue-700'
             : 'border-gray-200 bg-white hover:bg-gray-50 text-gray-700';
-          
+
           return (
             <button
               key={preset.value}
@@ -81,7 +82,7 @@ export default function PuritySelector({ metalType, value, onChange }: PuritySel
           );
         })}
       </div>
-      
+
       <div className="pt-4 border-t">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Custom Purity

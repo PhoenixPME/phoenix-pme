@@ -64,7 +64,9 @@ export default function PriceCalculator({
   // Use useEffect to update parent only when values change
   useEffect(() => {
     const prices = calculatePrices();
-    onPriceUpdate(prices.totalValue);
+    if (onPriceUpdate) {
+      onPriceUpdate(prices.totalValue);
+    }
   }, [spotPrice, premiumPercent, isCollectible, collectiblePremium, weight, weightUnit, purity, onPriceUpdate]);
 
   const prices = calculatePrices();
