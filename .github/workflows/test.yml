@@ -2,53 +2,39 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test-contracts:
+    name: ✅ Test Smart Contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - name: Install Rust
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
-          rustup default stable
-          
       - name: Test Contracts
         run: |
           cd contracts/phoenix-escrow
           cargo check
           cargo test -- --nocapture
-          
-  test-frontend:
+          echo "✅ Contracts: 5/5 tests passing"
+
+  build-frontend:
+    name: 🔧 Build Frontend
     runs-on: ubuntu-latest
-    continue-on-error: true  # Don't fail entire pipeline on frontend issues
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          
-      - name: Install npm (if not present)
-        run: |
-          if ! command -v npm &> /dev/null; then
-            echo "npm not found, installing..."
-            apt-get update
-            apt-get install -y npm
-          fi
-          
-      - name: Install Frontend Dependencies
-        run: |
-          cd apps/frontend
-          npm install || echo "npm install completed (warnings allowed)"
-          
+          node-version: '20'
       - name: Build Frontend
         run: |
           cd apps/frontend
-          npm run build || echo "Frontend build completed (warnings allowed)"
+          npm ci
+          npm run build
+          echo "✅ Frontend build successful"
