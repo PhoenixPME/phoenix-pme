@@ -1,84 +1,99 @@
+﻿// components/AuctionList.tsx - UPDATED
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from "react";
+import { AuctionClient } from "@/lib/contracts/auction-client";
 
-interface Auction {
-  id: number;
-  item: string;
-  price: string;
-  bids: number;
-  timeLeft: string;
-  seller: string;
-}
+export function AuctionList() {
+  const [auctions, setAuctions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function AuctionList() {
-  const [auctions] = useState<Auction[]>([
-    { id: 1, item: '1 oz Gold Bar (999.9 Fine)', price: '$1,950', bids: 3, timeLeft: '2 days', seller: 'GoldDealer123' },
-    { id: 2, item: '10 oz Silver Bar (.999 Fine)', price: '$285', bids: 5, timeLeft: '1 day', seller: 'SilverStacker' },
-    { id: 3, item: '1 oz Platinum Coin (Maple Leaf)', price: '$1,050', bids: 1, timeLeft: '5 days', seller: 'PlatinumTrust' },
-    { id: 4, item: '1 oz Palladium Bar', price: '$1,350', bids: 0, timeLeft: '7 days', seller: 'MetalsDirect' },
-  ]);
+  useEffect(() => {
+    loadAuctions();
+  }, []);
 
-  const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
+  const loadAuctions = async () => {
+    try {
+      const client = new AuctionClient();
+      const auctionList = await client.listAuctions();
+      console.log("Loaded auctions:", auctionList);
+      setAuctions(auctionList || []);
+    } catch (error) {
+      console.error("Error loading auctions:", error);
+      setAuctions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatTime = (timestamp: number) => {
+    try {
+      return new Date(timestamp).toLocaleDateString();
+    } catch (e) {
+      return "Invalid date";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Active': return 'bg-green-100 text-green-800';
+      case 'Ended': return 'bg-yellow-100 text-yellow-800';
+      case 'Disputed': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (loading) {
+    return <div className="p-4">Loading auctions...</div>;
+  }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">🪙 Active Precious Metals Auctions</h2>
+    <div className="p-4">
+      <h3 className="text-lg font-bold mb-4">Your Auctions ({auctions.length})</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {auctions.map((auction) => (
-          <div 
-            key={auction.id} 
-            className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow cursor-pointer"
-            onClick={() => setSelectedAuction(auction)}
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold text-lg text-gray-900">{auction.item}</h3>
-                <p className="text-sm text-gray-600">Seller: {auction.seller}</p>
-              </div>
-              <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
-                {auction.bids} bid{auction.bids !== 1 ? 's' : ''}
-              </span>
-            </div>
-            
-            <div className="mt-4">
-              <div className="flex justify-between items-center">
+      {auctions.length === 0 ? (
+        <div className="text-center p-8 text-gray-500 border rounded-lg">
+          No auctions found. Create your first auction above!
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {auctions.map((auction) => (
+            <div key={auction.id} className="p-4 border rounded-lg bg-white hover:bg-gray-50">
+              <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{auction.price}</p>
-                  <p className="text-sm text-gray-500">Current bid</p>
+                  <h4 className="font-semibold text-gray-900">{auction.item_description}</h4>
+                  <p className="text-sm text-gray-600 mt-1">ID: {auction.id}</p>
                 </div>
+                
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">Ends in</p>
-                  <p className="font-semibold text-gray-900">{auction.timeLeft}</p>
+                  <p className="font-bold text-lg text-blue-600">{auction.starting_price} TEST</p>
+                  <span className={`px-2 py-1 text-xs rounded font-medium ${getStatusColor(auction.status)}`}>
+                    {auction.status || 'Active'}
+                  </span>
                 </div>
               </div>
               
-              <button className="mt-4 w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all">
-                Place Bid
-              </button>
+              <div className="mt-3 pt-3 border-t text-sm text-gray-500 flex justify-between">
+                <div>
+                  <p className="font-medium">Ends: {formatTime(auction.end_time)}</p>
+                </div>
+                <div>
+                  <p className="font-medium">Created: {formatTime(auction.created_at)}</p>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {selectedAuction && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">{selectedAuction.item}</h3>
-            <p>Price: {selectedAuction.price}</p>
-            <p>Bids: {selectedAuction.bids}</p>
-            <p>Time left: {selectedAuction.timeLeft}</p>
-            <p>Seller: {selectedAuction.seller}</p>
-            <button 
-              onClick={() => setSelectedAuction(null)}
-              className="mt-4 w-full bg-gray-500 text-white py-2 rounded"
-            >
-              Close
-            </button>
-          </div>
+          ))}
         </div>
       )}
+      
+      <div className="mt-4 text-center">
+        <button
+          onClick={loadAuctions}
+          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
+        >
+          🔄 Refresh List
+        </button>
+      </div>
     </div>
   );
 }
