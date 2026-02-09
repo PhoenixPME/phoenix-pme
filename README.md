@@ -1,141 +1,66 @@
-🦅 coreum-pme: Phoenix Precious Metals Exchange
-Decentralized P2P precious metals trading on Coreum & XRPL
+# PhoenixPME - Precious Metals Exchange
 
-🚀 Quick Start for Contributors
-Read: Async Communication Protocol - Our no-talk workflow
-Review: Contribution Scorecard - How contributions are evaluated
-Pick Task: PROJECTS_NEW.md - Open tasks needing implementation
-Submit PR: Fork repo and submit pull request
-Earn: Grants via CONTRIBUTOR_GUIDE.md
-📚 Documentation
-State Machine Specification - Core protocol logic
-Development Roadmap - Mermaid Gantt timeline
-Technical FAQ - Common questions
-DAO Operations - Governance & fee model (0% → 0.03%)
-Tokenomics - Governance token design
-🏗️ Project Phases
-✅ Phase 6: Backend Integration - COMPLETE 🎉
-Delivered: 8 components (~1,200 lines) Components: Authentication System, User Controller, Auction Controller, Bidding System, Database Models, Middleware, PostgreSQL Database, API Server Features: Complete REST API with JWT auth, auction management, bidding system, PostgreSQL database Full Documentation: docs/PHASE_6_BACKEND_INTEGRATION.md
+## Overview
+Blockchain-based auction platform for physical precious metals with integrated insurance funding mechanism.
 
-✅ Phase 5: Admin Dashboard System - COMPLETE
-Delivered: 6 components (4,106 lines) Components: Auction Management, User Management, Transaction Monitoring, Dispute Resolution, Analytics & Reporting, API Management Features: Complete admin platform for monitoring, management, analytics, and security Full Documentation
+## Core Components
 
-✅ Phase 4: Checkout & Payment Processing - COMPLETE
-Delivered: 5 components (1,850 lines) Components: OrderSummary, ConfirmationStep, PaymentProcessor, ReceiptGenerator, EmailNotifications Features: Complete checkout flow, multi-wallet payment, receipt generation, email notifications Full Documentation
+### 1. Auction Platform
+- **Purpose**: Peer-to-peer trading of physical precious metals
+- **Fee**: 1.1% per successful transaction
+- **Features**:
+  - Buy It Now & bidding functionality
+  - Real-time market data integration
+  - Seller-set grading premiums
+  - Coreum blockchain settlement
 
-✅ Phase 3: Shipping & Payment - COMPLETE
-Delivered: 4 components (1,400 lines): ShippingSelector, PaymentSelector, CurrencyConverter, EscrowTerms Features: rUSD stablecoin, real-time conversion, complete shipping, smart escrow
+### 2. Fee Distribution
+Every transaction collects 1.1%:
+- **1.0%** → RLUSD insurance escrow (on XRPL) for future insurance program
+- **0.1%** → Development escrow (also on XRPL, separate allocation)
 
-✅ Phase 2: Auction Interface - COMPLETE
-Delivered: Core auction components and UI
+**Important Disclosure**: Both allocations (1.0% + 0.1%) are placed in RLUSD escrow accounts. The developer maintains control over 1/10 of the total insurance pool.
 
-✅ Phase 1: Project Foundation - COMPLETE
-Delivered: Repository setup, documentation, project structure
+### 3. Insurance Module (Future)
+- **Activation**: When combined RLUSD escrows reach sufficient capital
+- **Purpose**: Provide blockchain-based insurance for precious metals
+- **Control Structure**: Developer retains 10% governance/control stake
+- **Rate**: Will be competitive with traditional insurance (exact % TBD)
 
-📊 Project Statistics
-Total Lines of Code: 7,156+ (Phases 1-6) Components Built: 23+ Status: Ready for Phase 7 - Blockchain Integration
+## Escrow Structure
+- **Total Fee Collected**: 1.1% RLUSD
+- **Insurance Pool**: 1.0% → General insurance capital
+- **Developer Allocation**: 0.1% → Developer-controlled portion (10% of total pool)
+- **Governance**: Developer maintains proportional control in escrow management
 
-🔄 Current Phase: Phase 7 - Blockchain Integration
-Status: Planning Components Needed:
+## Technical Architecture
+- **Frontend**: React/TypeScript (port 3000)
+- **Backend**: Express.js/PostgreSQL (port 3001)
+- **Blockchain**: Coreum (CosmWasm smart contracts)
+- **Insurance Services**: Ports 3200-3204 (calculator, risk assessment, quotes, RLUSD monitor)
 
-Coreum Smart Contracts for auction escrow
-XRPL Payment integration
-Wallet connectivity (Keplr, Xumm, GemWallet)
-Tokenization of precious metals
-Blockchain event listeners
-💬 Community & Discussion
-All communication is async and written-only:
+## Current Status
+- ✅ Auction platform functional (http://localhost:3000)
+- ✅ Backend API operational (http://localhost:3001)
+- ✅ Insurance module services ready (ports 3200-3204)
+- 🔄 RLUSD escrow: Building capital (0 → 50,000 RLUSD goal)
+- 🔄 Smart contract deployment: In progress
 
-Discussions - Q&A, ideas, announcements
-Issues - Bug reports & feature requests
-Email: gjf20842@gmail.com (for serious collaboration inquiries)
-🛠️ Technical Stack
-Frontend: React, TypeScript, Tailwind CSS (5,956 lines complete)
-Backend: Express.js, TypeScript, PostgreSQL, Prisma (~1,200 lines complete)
-Blockchain: Coreum (CosmWasm), XRPL
-Wallets: Keplr (Coreum), Xumm (XRPL), GemWallet (EVM)
-Design: Mobile-first, responsive, professional UI
-🎯 Immediate Next Steps
-Phase 7 Planning: Blockchain architecture design
-Smart Contracts: Coreum CosmWasm contracts for escrow
-Wallet Integration: Connect Keplr, Xumm, GemWallet
-Payment Processing: XRPL payment integration
-Token Bridge: Cross-chain asset transfers
-📈 Progress Summary
-✅ Frontend UI complete (15+ components)
-✅ Admin dashboard complete (6 components)
-✅ Checkout flow complete (5 components)
-✅ Auction interface complete
-✅ Backend API complete (8 components)
-⏳ Smart contracts needed
-⏳ Production deployment needed
-Ready for blockchain integration to enable decentralized trading!
+## Development
+- **Repository**: https://github.com/PhoenixPME/coreum-pme
+- **Primary Developer**: Greg (@greg-gzillion)
+- **Contact**: gjf20842@gmail.com
 
-About
-Decentralized P2P precious metals trading protocol specification
+## Key Files
+- `apps/frontend/` - Auction interface
+- `apps/backend/` - API server
+- `apps/insurance-module/` - Insurance services
+- `contracts/` - Coreum smart contracts
+- `legal/` - License and commercial terms
 
-Topics
-open-source gold silver tokenization auctions platinum precious-metals defi xrpl rwa cosmwasm freetrade cosmos-ecosystem coreum freebay sologenic
-Resources
- Readme
-License
- GPL-3.0 license
-Contributing
- Contributing
- Activity
- Custom properties
-Stars
- 0 stars
-Watchers
- 0 watching
-Forks
- 0 forks
- Audit log
-Report repository
-Releases
- 1 tags
-Create a new release
-Packages
-No packages published
-Publish your first package
-Contributors
-2
-@gjf24104
-gjf24104
-@greg-gzillion
-greg-gzillion
-Languages
-TypeScript
-93.7%
- 
-Rust
-4.4%
- 
-Shell
-1.5%
- 
-Other
-0.4%
-## 🚀 Current Status: Targeting tx Blockchain
-
-Phoenix Precious Metals Exchange is now being developed for the upcoming **tx blockchain** (Coreum + Sologenic merger).
-
-### ✅ Completed
-- Frontend UI (React/TypeScript/Tailwind)
-- Backend API (Express.js/PostgreSQL)
-- Admin Dashboard
-- Checkout & Payment Flows
-- Smart Contract Foundation (`phoenix-escrow`)
-
-### 🔄 In Progress
-- Completing escrow auction smart contract
-- Multi-chain deployment setup (Juno → Coreum → tx)
-- Security audit preparation
-
-### 🎯 tx Launch Ready
-Our architecture is CosmWasm-based and will deploy to tx testnet upon launch.
-
-### 🔧 Development Workflow
-- All code merged via protected Pull Requests
-- Automated CI/CD testing on every commit
-- Security vulnerability reporting via SECURITY.md
+## Notes
+- Platform fee (1.1%) is mandatory in all implementations
+- All fees are escrowed in RLUSD on XRPL
+- Developer controls 10% of insurance pool via escrow allocations
+- Insurance module activates automatically when RLUSD escrow reaches threshold
+- Built for Coreum blockchain, compatible with upcoming tx (Coreum + Sologenic)
