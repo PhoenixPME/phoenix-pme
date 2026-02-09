@@ -1,7 +1,7 @@
 use cosmwasm_std::StdError;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
@@ -9,8 +9,8 @@ pub enum ContractError {
     #[error("Unauthorized")]
     Unauthorized {},
     
-    #[error("Auction not active")]
-    AuctionNotActive {},
+    #[error("Auction not found")]
+    AuctionNotFound {},
     
     #[error("Auction already ended")]
     AuctionEnded {},
@@ -18,9 +18,28 @@ pub enum ContractError {
     #[error("Bid too low")]
     BidTooLow {},
     
-    #[error("Auction not ended")]
-    AuctionNotEnded {},
+    #[error("Reserve price not met")]
+    ReserveNotMet {},
     
-    #[error("No winning bid")]
-    NoWinningBid {},
+    #[error("Buy now price not specified")]
+    NoBuyNowPrice {},
+    
+    #[error("Auction not active")]
+    AuctionNotActive {},
+    
+    #[error("Insufficient funds")]
+    InsufficientFunds {},
+    
+    #[error("Only creator can cancel")]
+    NotCreator {},
+    
+    #[error("Auction already has bids")]
+    AuctionHasBids {},
+    
+    // KYC errors
+    #[error("KYC verification required")]
+    KycRequired {},
+    
+    #[error("Address is blacklisted")]
+    Blacklisted {},
 }
