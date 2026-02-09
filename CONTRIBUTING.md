@@ -1,17 +1,15 @@
-# Contributing to PhoenixPME
+# How to Contribute to PhoenixPME
 
-## 🚀 Quick Start
-1. Check [PROJECTS_NEW.md](PROJECTS_NEW.md) for open tasks
+## Quick Start
+1. Find tasks in [PROJECTS_NEW.md](PROJECTS_NEW.md)
 2. Fork the repository
-3. Submit a Pull Request with your changes
+3. Submit a Pull Request
 
-## 💬 Communication
+## Communication
 - GitHub Issues for discussions
-- Email for serious inquiries: gjf20842@gmail.com
-- We prefer written, async communication
+- Email for serious work: gjf20842@gmail.com
 
-## 💰 Future Compensation
-Significant contributions may be compensated through grants when platform revenue allows.
+## Compensation
+Substantial work may receive grants from future platform revenue.
 
-
-Last updated: Mon Feb  9 12:43:39 PM MST 2026
+-- Generated at $(date +%s) --
