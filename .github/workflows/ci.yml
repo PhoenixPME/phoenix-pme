@@ -1,0 +1,181 @@
+name: CI - Validation & Security
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-repo:
+    name: Validate Repository Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate Core Files
+        run: |
+          echo "🔍 Validating PhoenixPME Repository..."
+          echo ""
+          
+          # Core documentation
+          echo "📚 Documentation:"
+          required_docs=("README.md" "PROGRESS.md" "CONTRIBUTING.md" "legal/FEE_MODEL.md")
+          all_good=true
+          for doc in "${required_docs[@]}"; do
+            if [ -f "$doc" ]; then
+              echo "  ✅ $doc"
+            else
+              echo "  ❌ $doc - MISSING"
+              all_good=false
+            fi
+          done
+          
+          if [ "$all_good" = false ]; then
+            echo "❌ Missing required documentation"
+            exit 1
+          fi
+          
+          # Smart contracts
+          echo ""
+          echo "⚡ Smart Contracts:"
+          if [ -d "contracts" ]; then
+            echo "  ✅ contracts/ directory"
+            contract_count=$(find contracts -name "Cargo.toml" -type f | wc -l)
+            echo "    - Found $contract_count Cargo.toml files"
+          else
+            echo "  ⚠️ contracts/ directory missing (expected during development)"
+          fi
+          
+          # Frontend
+          echo ""
+          echo "🎨 Frontend:"
+          if [ -d "apps/frontend" ]; then
+            echo "  ✅ apps/frontend directory"
+          else
+            echo "  ⚠️ apps/frontend directory missing (expected during development)"
+          fi
+          
+          # Backend
+          echo ""
+          echo "🔧 Backend:"
+          if [ -d "apps/backend" ]; then
+            echo "  ✅ apps/backend directory"
+          else
+            echo "  ⚠️ apps/backend directory missing (expected during development)"
+          fi
+          
+          echo ""
+          echo "✅ Repository structure validated successfully!"
+          echo "📊 Status: Multi-component project ready for development"
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    # Only run security scan if we have multiple commits to compare
+    if: github.event_name == 'pull_request' || github.event.push.commits.length > 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get full history for comparison
+      
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: ${{ github.sha }}
+      
+      - name: Basic Security Check (always runs)
+        run: |
+          echo "🔒 Running basic security checks..."
+          echo "Checking for exposed secrets patterns..."
+          
+          # Check for common secret patterns in code
+          patterns=(
+            "password.*="
+            "secret.*="
+            "token.*="
+            "api.*key.*="
+            "private.*key.*="
+          )
+          
+          found_issues=false
+          for pattern in "${patterns[@]}"; do
+            echo "Checking pattern: $pattern"
+            results=$(grep -r -i "$pattern" \
+              --include="*.js" --include="*.ts" --include="*.rs" \
+              --include="*.json" --include="*.env" --include="*.toml" \
+              --exclude-dir=node_modules --exclude-dir=target . 2>/dev/null | head -5 || true)
+            
+            if [ -n "$results" ]; then
+              echo "⚠️  Potential issue found with pattern: $pattern"
+              echo "$results"
+              found_issues=true
+            fi
+          done
+          
+          if [ "$found_issues" = true ]; then
+            echo "❌ Potential security issues found. Please review."
+            exit 1
+          else
+            echo "✅ No obvious security issues found in code patterns"
+          fi
+          
+          # Check for .env files with secrets
+          echo ""
+          echo "Checking for .env files..."
+          find . -name ".env*" ! -path "./node_modules/*" ! -path "./target/*" | while read env_file; do
+            echo "  Found: $env_file"
+            # Check if it might contain secrets
+            if grep -q "=" "$env_file" 2>/dev/null; then
+              echo "    ⚠️  Contains key-value pairs (may have secrets)"
+            fi
+          done
+
+  contract-check:
+    name: Smart Contract Check
+    runs-on: ubuntu-latest
+    needs: validate-repo
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust (if contracts exist)
+        if: hash('contracts') == 1
+        run: |
+          echo "🦀 Installing Rust..."
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup default stable
+          rustup target add wasm32-unknown-unknown
+          echo "✅ Rust installed: $(rustc --version)"
+      
+      - name: Check for contracts
+        run: |
+          if [ -d "contracts" ]; then
+            echo "✅ Contracts directory exists"
+            echo "Contract projects found:"
+            find contracts -name "Cargo.toml" | while read f; do
+              project_name=$(grep 'name =' "$f" | head -1 | cut -d'"' -f2 2>/dev/null || echo "unknown")
+              echo "  - $project_name ($(dirname $f))"
+            done
+          else
+            echo "ℹ️ No contracts directory found (this is OK during development)"
+          fi
+      
+      - name: Validate contract structure
+        if: hash('contracts') == 1
+        run: |
+          echo "📁 Contract structure:"
+          if [ -d "contracts/phoenix-escrow" ]; then
+            echo "✅ phoenix-escrow contract found"
+            echo "Source files:"
+            find contracts/phoenix-escrow/src -name "*.rs" 2>/dev/null | wc -l | xargs echo "  - Rust files:"
+            
+            # Check for existing WASM
+            if [ -f "contracts/phoenix-escrow/phoenix_escrow_optimized.wasm" ]; then
+              wasm_size=$(stat -c%s "contracts/phoenix-escrow/phoenix_escrow_optimized.wasm")
+              echo "✅ Existing WASM: $(($wasm_size/1024))KB"
+            fi
+          fi
