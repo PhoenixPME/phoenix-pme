@@ -1,3 +1,7 @@
+
+
+> 📦 **Looking for the latest version?** This project has been reorganized and is now actively maintained at **[greg-gzillion/TX](https://github.com/greg-gzillion/TX)**. The code here is stable but no longer updated.
+
 # PhoenixPME - Precious Metals Exchange
 
 ## Overview
